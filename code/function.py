@@ -24,17 +24,16 @@ def vae_loss_fn(rec_x, x, mu, logVar):
 	return BCE / (x.size(2) ** 2),  KL / mu.size(1)
 
 def class_loss_fn(pred, target):
-	loss = F.nll_loss(pred, target)
-	return loss
+	return F.nll_loss(pred, target)
 
 ####### Saving outputs/inputs #######
 def make_new_folder(exDir):
 	i=1
-	while os.path.isdir(join(exDir,'Ex_'+str(i))):
+	while os.path.isdir(join(exDir, f'Ex_{i}')):
 		i+=1
 
-	os.mkdir(join(exDir,'Ex_'+str(i)))
-	return join(exDir,'Ex_'+str(i))
+	os.mkdir(join(exDir, f'Ex_{i}'))
+	return join(exDir, f'Ex_{i}')
 
 def plot_losses(losses, exDir, epochs=1, title='loss'):
 	#losses should be a dictionary of losses 
@@ -50,7 +49,7 @@ def plot_losses(losses, exDir, epochs=1, title='loss'):
 	plt.ylabel('loss')
 	plt.legend()
 	plt.title(title)
-	fig1.savefig(join(exDir, title+'_plt.png'))
+	fig1.savefig(join(exDir, f'{title}_plt.png'))
 
 def plot_norm_losses(losses, exDir, epochs=1, title='loss'):
 	#losses should be a dictionary of losses 
@@ -67,19 +66,17 @@ def plot_norm_losses(losses, exDir, epochs=1, title='loss'):
 	plt.xlabel('epoch')
 	plt.ylabel('normalised loss')
 	plt.legend()
-	fig1.savefig(join(exDir, 'norm_'+title+'_plt.png'))
+	fig1.savefig(join(exDir, f'norm_{title}_plt.png'))
 
 def is_ready_to_stop_pretraining(e, epochs):
 	return (e >= epochs)
 
 def save_input_args(exDir, opts):
-	#save the input args to 
-	f = open(join(exDir,'opts.txt'),'w')
-	saveOpts =''.join(''.join(str(opts).split('(')[1:])\
-		.split(')')[:-1])\
-		.replace(',','\n')
-	f.write(saveOpts)
-	f.close()
+	with open(join(exDir,'opts.txt'),'w') as f:
+		saveOpts =''.join(''.join(str(opts).split('(')[1:])\
+			.split(')')[:-1])\
+			.replace(',','\n')
+		f.write(saveOpts)
 
 def sample_z(batch_size, nz, useCUDA):
 	if useCUDA:
@@ -180,10 +177,7 @@ def prep_data(data, useCUDA):
 def rand_one_hot(noSamples, noLabels, useCUDA):
 
 	y = Variable(torch.eye(noLabels)[torch.LongTensor(np.random.randint(0,noLabels,noSamples, dtype=int))]).type(torch.FloatTensor)
-	if useCUDA:
-		return y.cuda()
-	else:
-		return y
+	return y.cuda() if useCUDA else y
 
 def binary_class_score(pred, target, thresh=0.5):
 	predLabel = torch.gt(pred, thresh)

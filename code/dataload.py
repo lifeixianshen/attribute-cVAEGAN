@@ -88,10 +88,7 @@ class CELEBA(data.Dataset):
         return img, target
 
     def __len__(self):
-        if self.train:
-            return len(self.train_data)
-        else:
-            return len(self.test_data)
+        return len(self.train_data) if self.train else len(self.test_data)
 
     def _check_dir_exist(self):
         inDir=join(self.root, self.filename)

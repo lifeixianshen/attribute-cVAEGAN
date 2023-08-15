@@ -37,11 +37,7 @@ class DISCRIMINATOR(nn.Module):
 		x = F.relu(self.dis3(x))
 		x = F.relu(self.dis4(x))
 		x = x.view(x.size(0), -1)
-		if self.numLabels == 1:
-			x = F.sigmoid(self.dis5(x))
-		else:
-			x = F.softmax(self.dis5(x))
-		
+		x = F.sigmoid(self.dis5(x)) if self.numLabels == 1 else F.softmax(self.dis5(x))
 		return x
 
 	def forward(self, x):
@@ -212,10 +208,7 @@ class CVAE1(nn.Module):
 
 	def sample_z(self, noSamples, sig=1):
 		z =  sig * torch.randn(noSamples, self.nz)
-		if self.useCUDA:
-			return Variable(z.cuda())
-		else:
-			return Variable(z)
+		return Variable(z.cuda()) if self.useCUDA else Variable(z)
 
 	def decode(self, y, z):
 		#define the decoder here
@@ -277,11 +270,7 @@ class AUX(nn.Module):
 	def infer_y_from_z(self, z):
 		z = F.relu(self.aux1(z))
 		z = F.relu(self.aux2(z))
-		if self.numLabels==1:
-			z = F.sigmoid(self.aux3(z))
-		else:
-			z = F.softmax(self.aux3(z))
-
+		z = F.sigmoid(self.aux3(z)) if self.numLabels==1 else F.softmax(self.aux3(z))
 		return z
 
 	def forward(self, z):
